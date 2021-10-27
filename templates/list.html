@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>To do - List</title>
+    <style>
+        .container {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: Consolas;
+        }
+        .list {
+            display: flex;
+            max-height: 500px;
+            width: 100%;
+            overflow: auto;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #header {
+            font-size: 45px;
+        }
+
+        .todo {
+            display: flex;
+            width: 50%;
+            justify-content: space-around;
+            position: relative;
+            border-radius: 6px;
+            padding: 0.2rem;
+        }
+
+        .todo-finished-true {
+            text-decoration: line-through;
+            background-color: #5cb85c;
+        }
+
+        .todo-checkbox {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 18px;
+            height: 18px;
+        }
+
+        .todo-edit-button {
+            position: absolute;
+            right: 65px;
+            bottom: 3px;
+        }
+
+        .todo-delete-button {
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+        }
+
+        #todo-add-new {
+            padding: 1rem;
+            background: #f1f1f1;
+            font-family: Consolas;
+            font-size: 1.3rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        #add-todo-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            font-family: Consolas;
+            width: 300px;
+        }
+
+        #add-todo-form > button {
+            padding: 0.4rem;
+            background: #f1f1f1;
+            font-family: Consolas;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="header">Todos</h1>
+        <div class="list">
+            {{range .}}
+            <div class="todo todo-finished-{{.IsFinished}}">
+                {{if .IsFinished}}
+                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" data-id="{{.ID}}" checked>
+                {{else}}
+                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" data-id="{{.ID}}">
+                {{end}}
+                <div class="content">
+                    <h2 class="todo-title">{{.Title}}</h2>
+                    <p>{{.Body}}</p>
+                </div>
+                <p class="todo-due-date">{{ .DueDate.Format "Jan 02, 2006 15:04:05" }}</p>
+                <a class="todo-edit-button" href="/edit?id={{.ID}}">Edit</a>
+                <a class="todo-delete-button" href="/delete?id={{.ID}}">Delete</a>
+            </div>
+            {{end}}
+        </div>
+        <button id="todo-add-new">Add new Todo</button>
+    </div>
+
+    <script>
+        function TodoForm() {
+            let isOpened = false;
+            const container = document.querySelector('.container');
+
+            return {
+                toggleForm: function () {
+                    if (isOpened) {
+                       const addTodoForm = container.querySelector('#add-todo-form');
+                       container.removeChild(addTodoForm);
+                       isOpened = false;
+                    } else {
+                        const addTodoForm = document.createElement('form');
+                        addTodoForm.id = 'add-todo-form';
+                        addTodoForm.action = '/create'
+
+                        const header = document.createElement('h2');
+                        header.innerText = 'New Todo';
+                        addTodoForm.appendChild(header);
+
+                        const titleInput = document.createElement('input');
+                        titleInput.name = 'todo-title';
+                        titleInput.type = 'text';
+                        titleInput.placeholder = 'Todo title';
+                        addTodoForm.appendChild(titleInput);
+
+                        const bodyInput = document.createElement('input');
+                        bodyInput.name = 'todo-body';
+                        bodyInput.type = 'text';
+                        bodyInput.placeholder = 'Todo body';
+                        addTodoForm.appendChild(bodyInput);
+
+                        const submitButton = document.createElement('button');
+                        submitButton.type = 'submit';
+                        submitButton.innerText = 'Create';
+                        addTodoForm.appendChild(submitButton);
+
+                        container.appendChild(addTodoForm);
+                        isOpened = true;
+                    }
+                },
+                markTodo: async function (todoId, state, todoIndex) {
+                    const markUrl = `/mark?id=${todoId}&state=${state}`;
+                    const result = await fetch(markUrl, {method: 'POST'});
+
+                    if (result.status === 200) {
+                        const todoClassList = document.querySelectorAll('.todo')[todoIndex].classList
+                        if (state) {
+                            todoClassList.add('todo-finished-true');
+                        } else {
+                            todoClassList.remove('todo-finished-true')
+                        }
+                    }
+                }
+            }
+        }
+
+        const todoForm = TodoForm();
+
+        document.querySelector('#todo-add-new').addEventListener('click', () => {
+            todoForm.toggleForm();
+        });
+
+        const checkboxes = document.querySelectorAll('.todo-checkbox');
+        for (const [i, checkbox] of checkboxes.entries())  {
+            checkbox.addEventListener('click', () => {
+                const state = checkbox.checked;
+                const todoId = checkbox.dataset.id;
+                todoForm.markTodo(todoId, state, i);
+            })
+        }
+
+    </script>
+</body>
+</html>
