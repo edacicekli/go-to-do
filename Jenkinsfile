@@ -37,6 +37,12 @@ pipeline {
             }
         }
 
+        stage('Deploy') {
+            steps {
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'app_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: './main', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/ubuntu/application', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'main')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+            }
+        }
+
     }
     post {
         always {

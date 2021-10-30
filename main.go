@@ -10,34 +10,30 @@ import (
 	"time"
 )
 
-var templates  *template.Template = template.Must(template.ParseFiles("templates/list.html", "templates/edit.html"))
+var templates *template.Template = template.Must(template.ParseFiles("templates/list.html", "templates/edit.html"))
 var validPath = regexp.MustCompile("^/(list)/([a-zA-Z0-9]+)$")
 
 type Todo struct {
-	ID			string  `json:"id"`
-	IsFinished 	bool	`json:"is_finished"`
-	Title		string	`json:"title"`
-	Body		string 	`json:"body"`
-	DueDate		time.Time	`json:"due_date"`
+	ID         string    `json:"id"`
+	IsFinished bool      `json:"is_finished"`
+	Title      string    `json:"title"`
+	Body       string    `json:"body"`
+	DueDate    time.Time `json:"due_date"`
 }
 
 var layout string = "2006-01-02T15:04:05.000Z"
 
-var todos []Todo = []Todo{
-	{ID: "0", IsFinished: false, Title: "Todo 1", Body: "Todo body todo body", DueDate: time.Now()},
-	{ID: "1", IsFinished: false, Title: "Todo 2", Body: "Todo body todo body", DueDate: time.Now()},
-	{ID: "2", IsFinished: true, Title: "Todo 3", Body: "Todo body todo body", DueDate: time.Now()},
-	{ID: "3", IsFinished: false, Title: "Todo 4", Body: "Todo body todo body", DueDate: time.Now()},
-}
+var todos []Todo = []Todo{}
 
 func main() {
-	http.HandleFunc("/todos", handleListing)
+	http.HandleFunc("/", handleListing)
 	http.HandleFunc("/create", handleCreate)
 	http.HandleFunc("/edit", handleEdit)
 	http.HandleFunc("/delete", handleDelete)
 	http.HandleFunc("/mark", handleMark)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Application is up and running on port 3000")
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
 func handleListing(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +55,7 @@ func handleCreate(w http.ResponseWriter, r *http.Request) {
 
 	newTodo := Todo{ID: strconv.Itoa(len(todos) + 1), IsFinished: false, Title: newTodoTitle, Body: newTodoBody, DueDate: time.Now()}
 	todos = append(todos, newTodo)
-	http.Redirect(w, r, "/todos", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func handleEdit(w http.ResponseWriter, r *http.Request) {
@@ -97,12 +93,12 @@ func editTodo(w http.ResponseWriter, r *http.Request) {
 			foundTodo := &todos[i]
 			foundTodo.Title = editedTodo.Title
 			foundTodo.Body = editedTodo.Body
-			http.Redirect(w, r, "/todos", http.StatusFound)
+			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
 	}
 
-	http.Error(w,"Todo is not found", http.StatusBadRequest)
+	http.Error(w, "Todo is not found", http.StatusBadRequest)
 }
 
 func removeTodo(todoId string) []Todo {
@@ -119,13 +115,13 @@ func removeTodo(todoId string) []Todo {
 func handleDelete(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 
-	if id == ""{
+	if id == "" {
 		http.Error(w, "Id should be given and should be a number", http.StatusBadRequest)
 		return
 	}
 
 	todos = removeTodo(id)
-	http.Redirect(w, r, "/todos", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func handleMark(w http.ResponseWriter, r *http.Request) {
