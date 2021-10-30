@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var templates *template.Template = template.Must(template.ParseFiles("templates/list.html", "templates/edit.html"))
+var templates *template.Template = template.Must(template.ParseFiles("list.html", "edit.html"))
 var validPath = regexp.MustCompile("^/(list)/([a-zA-Z0-9]+)$")
 
 type Todo struct {
