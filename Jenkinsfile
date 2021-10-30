@@ -17,13 +17,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo 'Compiling and building'
-                sh 'go build'
-            }
-        }
-
         stage('Test') {
             steps {
                 withEnv(["PATH+GO=${GOPATH}/bin"]){
@@ -37,8 +30,11 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Build and Deploy') {
             steps {
+                echo 'Compiling and building'
+                sh 'go build'
+                sh 'ls && pwd'
                 sshPublisher(publishers: [sshPublisherDesc(configName: 'app_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: './main', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/ubuntu/application', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'main')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
