@@ -34,8 +34,7 @@ pipeline {
             steps {
                 echo 'Compiling and building'
                 sh 'go build'
-                sh 'ls && pwd'
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'app_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'sudo chmod 775 go-to-do && ./go-to-do', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/ubuntu/application', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'go-to-do,templates')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'app_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/ubuntu/application', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'go-to-do,templates')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
 
