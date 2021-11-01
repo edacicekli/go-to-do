@@ -34,7 +34,7 @@ pipeline {
             steps {
                 echo 'Compiling and building'
                 sh 'go build'
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'app_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/application', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'go-to-do,edit.html,list.html')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'app_server', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'run_app', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/app/deploy', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'go-to-do,edit.html,list.html')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
 
